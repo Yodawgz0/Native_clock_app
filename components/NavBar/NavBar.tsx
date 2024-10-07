@@ -14,7 +14,9 @@ const NavBar = () => {
     <View style={styles.navBarContainer}>
       {allIcons.map((Icon, index) => (
         <TouchableOpacity
-          onPress={() => setSelectedIcon(index)}
+          onPress={() => {
+            setSelectedIcon(index);
+          }}
           style={[
             styles.iconContainer,
             selectedIcon === index ? styles.selectedIcon : '',
@@ -33,22 +35,22 @@ export default NavBar;
 const styles = StyleSheet.create({
   navBarContainer: {
     backgroundColor: '#232A30',
-    paddingVertical: 20,
-    flex: 0.5,
+    paddingVertical: 25,
+    flex: 0.04,
     flexDirection: 'row',
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-around',
   },
   iconContainer: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 15,
     paddingVertical: 4,
     borderRadius: 15,
     alignItems: 'center',
   },
   iconTitle: {
     color: 'white',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
   },
   selectedIcon: {

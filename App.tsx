@@ -1,36 +1,36 @@
 import React from 'react';
-
+import {NavigationContainer} from '@react-navigation/native';
 import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  Text,
   useColorScheme,
-  View,
 } from 'react-native';
-
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import NavBar from './components/NavBar/NavBar';
+import Stopwatch from './pages/Stopwatch';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
     <SafeAreaView style={styles.appContainer}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-        style={styles.statusBar}
+        backgroundColor="#1A1C1E"
+        translucent
       />
-      <View style={styles.appContainer}>
-        <View>
-          <Text>Hello</Text>
-        </View>
-      </View>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Stopwatch"
+            component={Stopwatch}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
       <NavBar />
     </SafeAreaView>
   );
@@ -38,9 +38,8 @@ function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   appContainer: {
-    flex: 12,
+    flex: 1,
   },
-  statusBar: {},
 });
 
 export default App;
