@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconTitle: {
+    fontFamily: 'Rubik-Regular',
     color: 'white',
     fontSize: 9,
     fontWeight: '600',

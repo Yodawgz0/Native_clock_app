@@ -1,6 +1,7 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Menu from '../assets/menuDots.svg';
+import PlayButton from '../assets/play.svg';
 
 const Stopwatch = () => {
   return (
@@ -17,6 +18,11 @@ const Stopwatch = () => {
           <Text style={styles.secondsText}>00</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.controlButtonContainer}>
+        <TouchableOpacity style={styles.playButton}>
+          <PlayButton width={30} height={30} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -25,6 +31,7 @@ export default Stopwatch;
 
 const styles = StyleSheet.create({
   header: {
+    fontFamily: 'Rubik-Regular',
     marginTop: 40,
     display: 'flex',
     flexDirection: 'row',
@@ -36,12 +43,13 @@ const styles = StyleSheet.create({
   },
   hoursText: {
     color: 'white',
-    fontSize: 50,
+    fontSize: 60,
     fontWeight: '400',
   },
   secondsText: {
     color: 'white',
-    fontSize: 35,
+    fontFamily: 'Rubik',
+    fontSize: 45,
     fontWeight: '400',
     marginLeft: 20,
     bottom: 15,
@@ -59,6 +67,7 @@ const styles = StyleSheet.create({
   },
   clockContainer: {
     height: 500,
+    marginTop: 30,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -70,5 +79,21 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 10,
+  },
+  controlButtonContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 68,
+  },
+  playButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'black',
+    backgroundColor: '#93CCFF',
+    height: 90,
+    width: 90,
+    borderRadius: 45,
   },
 });
