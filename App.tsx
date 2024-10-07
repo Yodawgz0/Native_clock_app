@@ -24,6 +24,7 @@ function App(): React.JSX.Element {
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
+        style={styles.statusBar}
       />
       <View style={styles.appContainer}>
         <View>
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
   appContainer: {
     flex: 12,
   },
+  statusBar: {},
 });
 
 export default App;
