@@ -22,7 +22,7 @@ const NavBar = () => {
             selectedIcon === index ? styles.selectedIcon : '',
           ]}
           key={index}>
-          <Icon width="24" height="24" />
+          <Icon width="40" height="18" />
           <Text style={styles.iconTitle}>{titles[index]}</Text>
         </TouchableOpacity>
       ))}
@@ -45,15 +45,16 @@ const styles = StyleSheet.create({
   iconContainer: {
     paddingHorizontal: 15,
     paddingVertical: 4,
-    borderRadius: 15,
+    borderRadius: 20,
     alignItems: 'center',
   },
   iconTitle: {
     color: 'white',
     fontSize: 9,
     fontWeight: '600',
+    marginTop: 5,
   },
   selectedIcon: {
-    backgroundColor: '#9DADBE',
+    backgroundColor: '#60626e',
   },
 });

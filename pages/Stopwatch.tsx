@@ -11,6 +11,12 @@ const Stopwatch = () => {
           <Menu />
         </TouchableOpacity>
       </View>
+      <View style={styles.clockContainer}>
+        <TouchableOpacity style={styles.stopwatchButton}>
+          <Text style={styles.hoursText}>00</Text>
+          <Text style={styles.secondsText}>00</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -26,7 +32,36 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: 'white',
-    fontSize: 25,
+    fontSize: 20,
+  },
+  hoursText: {
+    color: 'white',
+    fontSize: 50,
+    fontWeight: '400',
+  },
+  secondsText: {
+    color: 'white',
+    fontSize: 35,
+    fontWeight: '400',
+    marginLeft: 20,
+    bottom: 15,
+  },
+  stopwatchButton: {
+    borderColor: '#60626e',
+    borderWidth: 10,
+    borderCurve: 'circular',
+    borderRadius: 150,
+    height: 300,
+    width: 300,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clockContainer: {
+    height: 500,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stopWatchContainer: {
     flex: 1,
