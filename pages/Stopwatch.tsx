@@ -7,7 +7,10 @@ import PauseButtonIcon from '../assets/pause.svg';
 const Stopwatch = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+
+  // Animated values for width and borderRadius
   const animatedWidth = useRef(new Animated.Value(90)).current;
+  const animatedBorderRadius = useRef(new Animated.Value(45)).current;
 
   useEffect(() => {
     let interval = null;
@@ -24,6 +27,12 @@ const Stopwatch = () => {
   useEffect(() => {
     Animated.timing(animatedWidth, {
       toValue: isRunning ? 150 : 90,
+      duration: 100,
+      useNativeDriver: false,
+    }).start();
+
+    Animated.timing(animatedBorderRadius, {
+      toValue: isRunning ? 30 : 45,
       duration: 100,
       useNativeDriver: false,
     }).start();
@@ -71,7 +80,10 @@ const Stopwatch = () => {
           <Animated.View
             style={[
               styles.mainButton,
-              {width: animatedWidth, borderRadius: isRunning ? 30 : 45},
+              {
+                width: animatedWidth,
+                borderRadius: animatedBorderRadius, // Use the animated borderRadius
+              },
             ]}>
             {isRunning ? (
               <PauseButtonIcon width={20} height={20} />
