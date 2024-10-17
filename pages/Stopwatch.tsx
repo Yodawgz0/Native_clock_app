@@ -7,10 +7,9 @@ import PauseButtonIcon from '../assets/pause.svg';
 const Stopwatch = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
-
-  // Animated values for width and borderRadius
+  const [moveWhenMinutes, setMoveWhenMinutes] = useState<number>(0);
   const animatedWidth = useRef(new Animated.Value(90)).current;
-  const animatedBorderRadius = useRef(new Animated.Value(45)).current;
+  const [animatedBorderRadius, setAnimatedBorderRadius] = useState<number>(50);
 
   useEffect(() => {
     let interval = null;
@@ -21,21 +20,19 @@ const Stopwatch = () => {
     } else if (!isRunning && elapsedTime !== 0) {
       clearInterval(interval!);
     }
+    const {minutes} = formatTime(elapsedTime);
+    setMoveWhenMinutes(minutes !== 0 ? 20 : 0);
+
     return () => clearInterval(interval!);
   }, [isRunning, elapsedTime]);
 
   useEffect(() => {
     Animated.timing(animatedWidth, {
       toValue: isRunning ? 150 : 90,
-      duration: 100,
+      duration: 150,
       useNativeDriver: false,
     }).start();
-
-    Animated.timing(animatedBorderRadius, {
-      toValue: isRunning ? 30 : 45,
-      duration: 100,
-      useNativeDriver: false,
-    }).start();
+    setAnimatedBorderRadius(isRunning ? 30 : 50);
   }, [isRunning]);
 
   const handleStartStop = () => {
@@ -65,30 +62,38 @@ const Stopwatch = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.clockContainer}>
-        <TouchableOpacity style={styles.stopwatchButton}>
-          <Text style={styles.hoursText}>
+        <TouchableOpacity
+          onPress={handleStartStop}
+          activeOpacity={1}
+          style={styles.stopwatchButton}>
+          <Text style={[styles.hoursText, {right: -5}]}>
             {minutes !== 0 ? minutes + ':' : ''}
             {seconds}
           </Text>
-          <Text style={styles.secondsText}>{milliseconds}</Text>
+          <Text style={[styles.secondsText, , {left: moveWhenMinutes}]}>
+            {milliseconds}
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.controlButtonContainer}>
         <TouchableOpacity
+          activeOpacity={1}
           onPress={handleStartStop}
-          style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
+          style={[
+            styles.mainButton,
+            {backgroundColor: '#93CCFF', borderRadius: animatedBorderRadius},
+          ]}>
           <Animated.View
             style={[
               styles.mainButton,
               {
                 width: animatedWidth,
-                borderRadius: animatedBorderRadius, // Use the animated borderRadius
               },
             ]}>
             {isRunning ? (
-              <PauseButtonIcon width={20} height={20} />
+              <PauseButtonIcon width={25} height={25} />
             ) : (
-              <PlayButton width={20} height={20} />
+              <PlayButton width={25} height={25} />
             )}
           </Animated.View>
         </TouchableOpacity>
@@ -113,14 +118,13 @@ const styles = StyleSheet.create({
   },
   hoursText: {
     color: 'white',
-    fontSize: 60,
+    fontSize: 70,
     fontWeight: '400',
-    right: 15,
   },
   secondsText: {
     color: 'white',
     fontFamily: 'Rubik',
-    fontSize: 45,
+    fontSize: 50,
     fontWeight: '400',
     marginLeft: 20,
     bottom: 15,
