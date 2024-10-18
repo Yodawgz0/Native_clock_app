@@ -3,6 +3,8 @@ import React, {useEffect, useState, useRef} from 'react';
 import Menu from '../assets/menuDots.svg';
 import PlayButton from '../assets/play.svg';
 import PauseButtonIcon from '../assets/pause.svg';
+import RestartButtonIcon from '../assets/restarts.svg';
+import TimerIcon from '../assets/timer_black.svg';
 
 const Stopwatch = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -10,6 +12,20 @@ const Stopwatch = () => {
   const [moveWhenMinutes, setMoveWhenMinutes] = useState<number>(0);
   const animatedWidth = useRef(new Animated.Value(90)).current;
   const [animatedBorderRadius, setAnimatedBorderRadius] = useState<number>(50);
+  const [blinkVisible, setBlinkVisible] = useState(true); // For blink effect
+
+  // Blink effect using useState and setInterval
+  useEffect(() => {
+    let blinkInterval: NodeJS.Timeout;
+    if (!isRunning && elapsedTime !== 0) {
+      blinkInterval = setInterval(() => {
+        setBlinkVisible(prev => !prev);
+      }, 500);
+    } else {
+      setBlinkVisible(true); // Reset to visible when running or at zero
+    }
+    return () => clearInterval(blinkInterval); // Cleanup
+  }, [isRunning, elapsedTime]);
 
   useEffect(() => {
     let interval = null;
@@ -39,6 +55,11 @@ const Stopwatch = () => {
     setIsRunning(prev => !prev);
   };
 
+  const handleRestart = () => {
+    setElapsedTime(0);
+    setIsRunning(false);
+  };
+
   const formatTime = (time: number) => {
     const totalSeconds = Math.floor(time / 1000);
     const milliseconds = Math.floor((time % 1000) / 10);
@@ -66,16 +87,36 @@ const Stopwatch = () => {
           onPress={handleStartStop}
           activeOpacity={1}
           style={styles.stopwatchButton}>
-          <Text style={[styles.hoursText, {right: -5}]}>
+          <Text style={[styles.hoursText, {opacity: blinkVisible ? 1 : 0}]}>
             {minutes !== 0 ? minutes + ':' : ''}
             {seconds}
           </Text>
-          <Text style={[styles.secondsText, , {left: moveWhenMinutes}]}>
+          <Text
+            style={[
+              styles.secondsText,
+              {left: moveWhenMinutes, opacity: blinkVisible ? 1 : 0},
+            ]}>
             {milliseconds}
           </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.controlButtonContainer}>
+        <View
+          style={{
+            width: 70,
+            height: 70,
+            backgroundColor: '#1A1C1E',
+            marginRight: 20,
+          }}>
+          {elapsedTime !== 0 && (
+            <TouchableOpacity
+              onPress={handleRestart}
+              style={styles.resetButton}>
+              <RestartButtonIcon width={23} height={23} />
+            </TouchableOpacity>
+          )}
+        </View>
+
         <TouchableOpacity
           activeOpacity={1}
           onPress={handleStartStop}
@@ -97,6 +138,16 @@ const Stopwatch = () => {
             )}
           </Animated.View>
         </TouchableOpacity>
+
+        <View style={{width: 70, height: 70, backgroundColor: '#1A1C1E'}}>
+          {elapsedTime !== 0 && !isRunning && (
+            <TouchableOpacity
+              onPress={handleRestart}
+              style={styles.resetButton}>
+              <TimerIcon width={23} height={23} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -156,13 +207,25 @@ const styles = StyleSheet.create({
   },
   controlButtonContainer: {
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     marginTop: 68,
+    width: '100%',
   },
   mainButton: {
     height: 90,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  resetButton: {
+    backgroundColor: '#996f9e',
+    width: 70,
+    height: 70,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+    marginRight: 10,
   },
 });
