@@ -106,7 +106,8 @@ const Stopwatch = () => {
             width: 70,
             height: 70,
             backgroundColor: '#1A1C1E',
-            marginRight: 20,
+            marginRight: 0,
+            justifyContent: 'center',
           }}>
           {elapsedTime !== 0 && (
             <TouchableOpacity
@@ -139,7 +140,13 @@ const Stopwatch = () => {
           </Animated.View>
         </TouchableOpacity>
 
-        <View style={{width: 70, height: 70, backgroundColor: '#1A1C1E'}}>
+        <View
+          style={{
+            width: 70,
+            height: 70,
+            backgroundColor: '#1A1C1E',
+            justifyContent: 'center',
+          }}>
           {elapsedTime !== 0 && !isRunning && (
             <TouchableOpacity
               onPress={handleRestart}
@@ -220,9 +227,9 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     backgroundColor: '#996f9e',
-    width: 70,
-    height: 70,
-    borderRadius: 50,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
