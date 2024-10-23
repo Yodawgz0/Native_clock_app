@@ -22,9 +22,9 @@ const Stopwatch = () => {
         setBlinkVisible(prev => !prev);
       }, 500);
     } else {
-      setBlinkVisible(true); // Reset to visible when running or at zero
+      setBlinkVisible(true);
     }
-    return () => clearInterval(blinkInterval); // Cleanup
+    return () => clearInterval(blinkInterval);
   }, [isRunning, elapsedTime]);
 
   useEffect(() => {
@@ -147,7 +147,7 @@ const Stopwatch = () => {
             backgroundColor: '#1A1C1E',
             justifyContent: 'center',
           }}>
-          {elapsedTime !== 0 && !isRunning && (
+          {elapsedTime !== 0 && (
             <TouchableOpacity
               onPress={handleRestart}
               style={styles.resetButton}>
