@@ -5,17 +5,20 @@ import HourGlass from '../../assets/hourglass.svg';
 import TimerIcon from '../../assets/timer.svg';
 import SleepIcon from '../../assets/sleep.svg';
 import {useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
 
 const NavBar = () => {
   const allIcons = [AlarmIcon, ClockIcon, HourGlass, TimerIcon, SleepIcon];
   const titles = ['Alarm', 'Clock', 'Timer', 'Stopwatch', 'Bedtime'];
   const [selectedIcon, setSelectedIcon] = useState<number>(3);
+  const navigate = useNavigation();
   return (
     <View style={styles.navBarContainer}>
       {allIcons.map((Icon, index) => (
         <TouchableOpacity
           onPress={() => {
             setSelectedIcon(index);
+            navigate.navigate(titles[index] as never);
           }}
           style={[
             styles.iconContainer,
