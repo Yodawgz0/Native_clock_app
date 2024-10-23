@@ -4,6 +4,7 @@ import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import NavBar from './components/NavBar/NavBar';
 import Stopwatch from './pages/Stopwatch';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import Clock from './pages/Clock';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,9 +23,14 @@ function App(): React.JSX.Element {
             component={Stopwatch}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="Clock"
+            component={Clock}
+            options={{headerShown: false}}
+          />
         </Stack.Navigator>
+        <NavBar />
       </NavigationContainer>
-      <NavBar />
     </SafeAreaView>
   );
 }
