@@ -1,14 +1,17 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Menu from '../assets/menuDots.svg';
+import AddIcon from '../assets/add.svg';
+import {useNavigation} from '@react-navigation/native';
 
 const Clock = () => {
+  const navigate = useNavigation();
   const [currentTime, setCurrentTime] = useState<[string, 'AM' | 'PM']>([
     (new Date().getHours() > 12
       ? new Date().getHours() - 12
       : new Date().getHours()) +
       ':' +
-      new Date().getMinutes(),
+      new Date().getMinutes().toString().padStart(2, '0'),
     new Date().getHours() > 12 ? 'PM' : 'AM',
   ]);
   const [currentDate, setCurrentDate] = useState<string>(
@@ -22,7 +25,7 @@ const Clock = () => {
           ? new Date().getHours() - 12
           : new Date().getHours()) +
           ':' +
-          new Date().getMinutes(),
+          new Date().getMinutes().toString().padStart(2, '0'),
         new Date().getHours() > 12 ? 'PM' : 'AM',
       ]),
         setCurrentDate(new Date().toDateString());
@@ -32,18 +35,30 @@ const Clock = () => {
 
   return (
     <View style={styles.clockContainer}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Clock</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <Menu />
+      <View style={{flex: 0.9}}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Clock</Text>
+          <TouchableOpacity style={styles.menuButton}>
+            <Menu />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.timeHeaderContainer}>
+          <Text style={styles.topHeaderTime}>{currentTime[0]}</Text>
+          <Text style={styles.topHeaderAMPM}>{currentTime[1]}</Text>
+        </View>
+        <View style={styles.timeHeaderContainer}>
+          <Text style={styles.dateHeader}>{currentDate}</Text>
+        </View>
+      </View>
+      <View style={styles.controlButtonContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('SearchCities' as never);
+          }}
+          activeOpacity={1}
+          style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
+          <AddIcon width={25} height={25} />
         </TouchableOpacity>
-      </View>
-      <View style={styles.timeHeaderContainer}>
-        <Text style={styles.topHeaderTime}>{currentTime[0]}</Text>
-        <Text style={styles.topHeaderAMPM}>{currentTime[1]}</Text>
-      </View>
-      <View style={styles.timeHeaderContainer}>
-        <Text style={styles.dateHeader}>{currentDate}</Text>
       </View>
     </View>
   );
@@ -79,7 +94,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'center',
-    width: 390,
+    width: '100%',
   },
   topHeaderTime: {
     color: 'white',
@@ -92,5 +107,21 @@ const styles = StyleSheet.create({
   },
   dateHeader: {
     color: 'white',
+  },
+  controlButtonContainer: {
+    flex: 0.1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 68,
+    width: '100%',
+  },
+  mainButton: {
+    height: 90,
+    width: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
