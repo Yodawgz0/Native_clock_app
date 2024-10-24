@@ -5,13 +5,15 @@ import HourGlass from '../../assets/hourglass.svg';
 import TimerIcon from '../../assets/timer.svg';
 import SleepIcon from '../../assets/sleep.svg';
 import {useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useNavigationState} from '@react-navigation/native';
 
 const NavBar = () => {
   const allIcons = [AlarmIcon, ClockIcon, HourGlass, TimerIcon, SleepIcon];
   const titles = ['Alarm', 'Clock', 'Timer', 'Stopwatch', 'Bedtime'];
   const [selectedIcon, setSelectedIcon] = useState<number>(3);
   const navigate = useNavigation();
+  const navigationState = useNavigationState(state => state);
+  const currentRouteName = navigationState?.routes[navigationState.index]?.name;
   return (
     <View style={styles.navBarContainer}>
       {allIcons.map((Icon, index) => (
@@ -22,7 +24,7 @@ const NavBar = () => {
           }}
           style={[
             styles.iconContainer,
-            selectedIcon === index ? styles.selectedIcon : '',
+            titles[index] === currentRouteName ? styles.selectedIcon : '',
           ]}
           key={index}>
           <Icon width="40" height="18" />

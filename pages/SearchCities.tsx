@@ -9,12 +9,15 @@ import {
 import React, {useState, useEffect, useRef} from 'react';
 import BackButton from '../assets/ArrowBack.svg';
 import SearchIcon from '../assets/SearchIcon.svg';
+import {useNavigation} from '@react-navigation/native';
 
 const SearchCities = () => {
   const [searchText, setSearchText] = useState<string>('');
   const [timeZones, setTimeZones] = useState<string[]>([]);
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const navigate = useNavigation();
 
   const allContinents = [
     'Africa',
@@ -76,7 +79,11 @@ const SearchCities = () => {
   return (
     <View style={styles.cityContainer}>
       <View style={styles.searchContainer}>
-        <BackButton height={20} width={20} />
+        <BackButton
+          onPress={() => navigate.navigate('Clock' as never)}
+          height={20}
+          width={20}
+        />
         <View style={{marginLeft: 10}}>
           <TextInput
             placeholder="Search for a city"
