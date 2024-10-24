@@ -147,7 +147,7 @@ const Stopwatch = () => {
             backgroundColor: '#1A1C1E',
             justifyContent: 'center',
           }}>
-          {elapsedTime !== 0 && (
+          {elapsedTime !== 0 && isRunning && (
             <TouchableOpacity
               onPress={handleRestart}
               style={styles.resetButton}>
