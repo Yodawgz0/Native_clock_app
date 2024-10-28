@@ -10,6 +10,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import BackButton from '../assets/ArrowBack.svg';
 import SearchIcon from '../assets/SearchIcon.svg';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SearchCities = () => {
   const [searchText, setSearchText] = useState<string>('');
@@ -71,6 +72,15 @@ const SearchCities = () => {
     }
   }, [searchText, timeZones]);
 
+  const handleCitySelect = async (city: string) => {
+    try {
+      await AsyncStorage.setItem('selectedCity', city);
+      navigate.navigate('Clock' as never);
+    } catch (error) {
+      console.error('Error saving city to storage:', error);
+    }
+  };
+
   const listOpacity = fadeAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [1, 0],
@@ -117,8 +127,10 @@ const SearchCities = () => {
             keyExtractor={item => item}
             renderItem={({item}) => (
               <View style={[styles.cityItem]}>
-                <Text style={{color: 'white'}}>
-                  {item.split('/')[1] || item}
+                <Text
+                  onPress={() => handleCitySelect(item.split('/')[1])}
+                  style={{color: 'white'}}>
+                  {item.split('/')[1].split('_').join(' ') || item}
                 </Text>
               </View>
             )}
@@ -153,7 +165,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cityItem: {
-    padding: 15,
-    marginLeft: 30,
+    marginVertical: 15,
+    marginHorizontal: 30,
   },
 });

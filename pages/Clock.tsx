@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import Menu from '../assets/menuDots.svg';
 import AddIcon from '../assets/add.svg';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Clock = () => {
   const navigate = useNavigation();
@@ -17,6 +18,7 @@ const Clock = () => {
   const [currentDate, setCurrentDate] = useState<string>(
     new Date().toDateString(),
   );
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   useEffect(() => {
     const intervalTime = setInterval(() => {
@@ -30,9 +32,20 @@ const Clock = () => {
       ]),
         setCurrentDate(new Date().toDateString());
     }, 1000);
-    return () => clearInterval(intervalTime);
-  });
 
+    return () => clearInterval(intervalTime);
+  }, []);
+
+  const getSelectedCity = async () => {
+    try {
+      const city = await AsyncStorage.getItem('selectedCity');
+      setSelectedCity(city);
+    } catch (error) {
+      console.error('Error retrieving city from storage:', error);
+    }
+  };
+
+  getSelectedCity();
   return (
     <View style={styles.clockContainer}>
       <View style={{flex: 0.9}}>
@@ -49,6 +62,13 @@ const Clock = () => {
         <View style={styles.timeHeaderContainer}>
           <Text style={styles.dateHeader}>{currentDate}</Text>
         </View>
+        {selectedCity && (
+          <View style={styles.selectedCityContainer}>
+            <Text style={styles.selectedCityText}>
+              Selected City: {selectedCity}
+            </Text>
+          </View>
+        )}
       </View>
       <View style={styles.controlButtonContainer}>
         <TouchableOpacity
@@ -102,20 +122,23 @@ const styles = StyleSheet.create({
   },
   topHeaderAMPM: {
     color: 'white',
-    fontSize: 20,
-    marginLeft: 5,
+    fontSize: 30,
   },
   dateHeader: {
     color: 'white',
+    fontSize: 18,
+  },
+  selectedCityContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  selectedCityText: {
+    color: 'white',
+    fontSize: 16,
   },
   controlButtonContainer: {
     flex: 0.1,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    marginTop: 68,
-    width: '100%',
+    justifyContent: 'flex-end',
   },
   mainButton: {
     height: 90,
@@ -123,5 +146,9 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
+    shadowOffset: {width: 2, height: 3},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
 });
