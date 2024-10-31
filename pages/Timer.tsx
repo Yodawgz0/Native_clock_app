@@ -1,16 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Menu from '../assets/menuDots.svg';
 import Close from '../assets/close.svg';
 import RestartButtoonPink from '../assets/RestartPink.svg';
 import PlayButton from '../assets/play.svg';
 import PauseButtonIcon from '../assets/pause.svg';
 import AddIcon from '../assets/add.svg';
+import BackspaceIcon from '../assets/Backspace.svg';
 
 const Timer = () => {
   const [seconds, setSeconds] = useState(180);
   const [isRunning, setIsRunning] = useState(false);
-
+  const [numPadShow, setNumPadShow] = useState<boolean>(false);
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -41,6 +48,8 @@ const Timer = () => {
     return `${minutes}:${seconds}`;
   };
 
+  const numPadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0'];
+
   return (
     <View style={styles.timerContainer}>
       <View style={styles.header}>
@@ -49,65 +58,85 @@ const Timer = () => {
           <Menu />
         </TouchableOpacity>
       </View>
-      <View style={styles.timerHolderContainer}>
-        <View style={styles.timerInnerContainerHeader}>
-          <Text style={styles.timerInnerContainerHeaderText}>
-            Countdown Timer
-          </Text>
-          <TouchableOpacity style={styles.timerInnerContainerHeaderCloseButton}>
-            <Close width={15} height={15} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.timerFunctionHolder}>
-          <View style={styles.timerWatchButton}>
-            <Text
-              style={{
-                flex: 0.5,
-                top: 90,
-                color: 'white',
-                fontSize: 70,
-              }}>
-              {formatTime(seconds)}
-            </Text>
-            <View style={{flex: 0.5}}>
+      {numPadShow ? (
+        <View>
+          <View style={styles.timerHolderContainer}>
+            <View style={styles.timerInnerContainerHeader}>
+              <Text style={styles.timerInnerContainerHeaderText}>3m Timer</Text>
               <TouchableOpacity
-                style={styles.resetButton}
-                onPress={() => setSeconds(180)}>
-                <RestartButtoonPink width={40} height={40} />
+                style={styles.timerInnerContainerHeaderCloseButton}>
+                <Close width={15} height={15} />
               </TouchableOpacity>
             </View>
+            <View style={styles.timerFunctionHolder}>
+              <View style={styles.timerWatchButton}>
+                <Text
+                  style={{
+                    flex: 0.5,
+                    top: 90,
+                    color: 'white',
+                    fontSize: 70,
+                  }}>
+                  {formatTime(seconds)}
+                </Text>
+                <View style={{flex: 0.5}}>
+                  <TouchableOpacity
+                    style={styles.resetButton}
+                    onPress={() => setSeconds(180)}>
+                    <RestartButtoonPink width={40} height={40} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.controlButtonsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.playButton,
+                    {backgroundColor: '#2b333a', borderRadius: 50},
+                  ]}
+                  onPress={handleAddMinute}>
+                  <Text style={{color: 'white', fontSize: 15}}>+1:00</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.playButton,
+                    {backgroundColor: '#93CCFF', borderRadius: 50},
+                  ]}
+                  onPress={handlePlayPause}>
+                  {isRunning ? (
+                    <PauseButtonIcon width={25} height={25} />
+                  ) : (
+                    <PlayButton width={25} height={25} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-          <View style={styles.controlButtonsContainer}>
+          <View style={styles.controlButtonContainer}>
             <TouchableOpacity
-              style={[
-                styles.playButton,
-                {backgroundColor: '#2b333a', borderRadius: 50},
-              ]}
-              onPress={handleAddMinute}>
-              <Text style={{color: 'white', fontSize: 15}}>+1:00</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.playButton,
-                {backgroundColor: '#93CCFF', borderRadius: 50},
-              ]}
-              onPress={handlePlayPause}>
-              {isRunning ? (
-                <PauseButtonIcon width={25} height={25} />
-              ) : (
-                <PlayButton width={25} height={25} />
-              )}
+              activeOpacity={1}
+              style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
+              <AddIcon width={25} height={25} />
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-      <View style={styles.controlButtonContainer}>
-        <TouchableOpacity
-          activeOpacity={1}
-          style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
-          <AddIcon width={25} height={25} />
-        </TouchableOpacity>
-      </View>
+      ) : (
+        <View>
+          <TextInput />
+          <View style={styles.numPadContainer}>
+            {numPadKeys.map((key, index) => (
+              <View style={styles.numKeyPadButton}>
+                <Text style={styles.textNumpPageKeys} key={key}>
+                  {key}
+                </Text>
+              </View>
+            ))}
+            <View
+              style={[styles.numKeyPadButton, {backgroundColor: '#60626e'}]}>
+              <BackspaceIcon height={24} width={24} />
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -129,7 +158,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 17,
   },
   menuButton: {
     padding: 10,
@@ -214,5 +243,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
+  },
+  numPadContainer: {
+    flexWrap: 'wrap',
+    display: 'flex',
+    flexDirection: 'row',
+    paddingHorizontal: 60,
+  },
+  numKeyPadButton: {
+    flex: 0.7,
+    minWidth: 80,
+    minHeight: 80,
+    borderRadius: 45,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#2b333a',
+    margin: 5,
+  },
+  textNumpPageKeys: {
+    color: 'white',
+    fontSize: 27,
   },
 });
