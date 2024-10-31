@@ -9,6 +9,7 @@ import NavBar from './components/NavBar/NavBar';
 import Stopwatch from './pages/Stopwatch';
 import Clock from './pages/Clock';
 import SearchCities from './pages/SearchCities';
+import Timer from './pages/Timer';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +50,11 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="SearchCities"
               component={SearchCities}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Timer"
+              component={Timer}
               options={{headerShown: false}}
             />
           </Stack.Navigator>
