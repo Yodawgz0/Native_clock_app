@@ -1,5 +1,5 @@
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
 import Menu from '../assets/menuDots.svg';
 import Close from '../assets/close.svg';
 import RestartButtoonPink from '../assets/RestartPink.svg';
@@ -8,6 +8,39 @@ import PauseButtonIcon from '../assets/pause.svg';
 import AddIcon from '../assets/add.svg';
 
 const Timer = () => {
+  const [seconds, setSeconds] = useState(180);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isRunning && seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds(prev => prev - 1);
+      }, 1000);
+    } else if (seconds === 0 || !isRunning) {
+      if (interval) clearInterval(interval);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRunning, seconds]);
+
+  const handlePlayPause = () => {
+    setIsRunning(!isRunning);
+  };
+
+  const handleAddMinute = () => {
+    setSeconds(prev => prev + 60);
+  };
+
+  const formatTime = (sec: number) => {
+    const minutes = Math.floor(sec / 60).toString();
+    const seconds = (sec % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
   return (
     <View style={styles.timerContainer}>
       <View style={styles.header}>
@@ -18,7 +51,9 @@ const Timer = () => {
       </View>
       <View style={styles.timerHolderContainer}>
         <View style={styles.timerInnerContainerHeader}>
-          <Text style={styles.timerInnerContainerHeaderText}>3s Timer</Text>
+          <Text style={styles.timerInnerContainerHeaderText}>
+            Countdown Timer
+          </Text>
           <TouchableOpacity style={styles.timerInnerContainerHeaderCloseButton}>
             <Close width={15} height={15} />
           </TouchableOpacity>
@@ -32,10 +67,12 @@ const Timer = () => {
                 color: 'white',
                 fontSize: 70,
               }}>
-              59
+              {formatTime(seconds)}
             </Text>
             <View style={{flex: 0.5}}>
-              <TouchableOpacity style={styles.resetButton}>
+              <TouchableOpacity
+                style={styles.resetButton}
+                onPress={() => setSeconds(180)}>
                 <RestartButtoonPink width={40} height={40} />
               </TouchableOpacity>
             </View>
@@ -45,15 +82,17 @@ const Timer = () => {
               style={[
                 styles.playButton,
                 {backgroundColor: '#2b333a', borderRadius: 50},
-              ]}>
+              ]}
+              onPress={handleAddMinute}>
               <Text style={{color: 'white', fontSize: 15}}>+1:00</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.playButton,
                 {backgroundColor: '#93CCFF', borderRadius: 50},
-              ]}>
-              {false ? (
+              ]}
+              onPress={handlePlayPause}>
+              {isRunning ? (
                 <PauseButtonIcon width={25} height={25} />
               ) : (
                 <PlayButton width={25} height={25} />
@@ -102,7 +141,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    margin: 20,
+    margin: 10,
   },
   timerInnerContainerHeader: {
     margin: 20,
@@ -157,7 +196,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     paddingVertical: 30,
   },
   controlButtonContainer: {
@@ -166,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    flex: 0.1,
+    flex: 0.13,
   },
   mainButton: {
     height: 90,
