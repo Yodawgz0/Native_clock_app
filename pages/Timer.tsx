@@ -18,6 +18,8 @@ const Timer = () => {
   const [seconds, setSeconds] = useState(180);
   const [isRunning, setIsRunning] = useState(false);
   const [numPadShow, setNumPadShow] = useState<boolean>(false);
+  const [placeholder, setPlaceholder] = useState<string[]>(['00', '00', '00']);
+  const unitTime: string[] = ['h', 'm', 's'];
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -121,14 +123,27 @@ const Timer = () => {
         </View>
       ) : (
         <View>
-          <TextInput />
+          <View style={styles.textInputConatiner}>
+            {[0, 1, 2].map(idx => (
+              <View style={styles.textInPlaceholderInput}>
+                <TextInput
+                  placeholderTextColor="#c1c1c1"
+                  placeholder={placeholder[idx]}
+                  style={{fontSize: 50, alignSelf: 'flex-end'}}
+                />
+                <Text style={styles.suffixInputPlaceholder}>
+                  {unitTime[idx]}
+                </Text>
+              </View>
+            ))}
+          </View>
           <View style={styles.numPadContainer}>
             {numPadKeys.map((key, index) => (
-              <View style={styles.numKeyPadButton}>
+              <TouchableOpacity style={styles.numKeyPadButton}>
                 <Text style={styles.textNumpPageKeys} key={key}>
                   {key}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
             <View
               style={[styles.numKeyPadButton, {backgroundColor: '#60626e'}]}>
@@ -264,5 +279,26 @@ const styles = StyleSheet.create({
   textNumpPageKeys: {
     color: 'white',
     fontSize: 27,
+  },
+  textInputConatiner: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    height: 80,
+    marginTop: 30,
+    marginBottom: 80,
+  },
+  textInPlaceholderInput: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 10,
+  },
+  suffixInputPlaceholder: {
+    color: 'white',
+    fontSize: 16,
+    bottom: 20,
+    alignSelf: 'flex-end',
   },
 });
