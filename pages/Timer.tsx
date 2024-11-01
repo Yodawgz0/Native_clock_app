@@ -87,6 +87,20 @@ const Timer = () => {
     setPlaceholder(updatedPlaceholder);
   };
 
+  const handleBackspacePress = () => {
+    const updatedPlaceholder = [...placeholder];
+    if (parseInt(updatedPlaceholder[2]) > 1) {
+      updatedPlaceholder[2] = '0' + updatedPlaceholder[2][0];
+    } else if (parseInt(updatedPlaceholder[1]) > 0) {
+      updatedPlaceholder[2] = '00';
+      updatedPlaceholder[1] = '0' + updatedPlaceholder[1][0];
+    } else if (parseInt(updatedPlaceholder[0]) > 0) {
+      updatedPlaceholder[1] = '00';
+      updatedPlaceholder[0] = '0' + updatedPlaceholder[0][0];
+    }
+    setPlaceholder(updatedPlaceholder);
+  };
+
   const timerHeaderCalc = useMemo(() => {
     return seconds >= 3600
       ? `${Math.floor(seconds / 3600)}h Timer`
@@ -193,10 +207,11 @@ const Timer = () => {
                 <Text style={styles.textNumpPageKeys}>{key}</Text>
               </TouchableOpacity>
             ))}
-            <View
-              style={[styles.numKeyPadButton, {backgroundColor: '#60626e'}]}>
+            <TouchableOpacity
+              style={[styles.numKeyPadButton, {backgroundColor: '#60626e'}]}
+              onPress={handleBackspacePress}>
               <BackspaceIcon height={24} width={24} />
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.addTimerControlButtons}>
             <TouchableOpacity
