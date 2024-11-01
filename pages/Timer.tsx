@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,7 @@ import PlayButton from '../assets/play.svg';
 import PauseButtonIcon from '../assets/pause.svg';
 import AddIcon from '../assets/add.svg';
 import BackspaceIcon from '../assets/Backspace.svg';
+import DeleteIcon from '../assets/Delete.svg';
 
 const Timer = () => {
   const [seconds, setSeconds] = useState(180);
@@ -20,6 +21,8 @@ const Timer = () => {
   const [numPadShow, setNumPadShow] = useState<boolean>(false);
   const [placeholder, setPlaceholder] = useState<string[]>(['00', '00', '00']);
   const unitTime: string[] = ['h', 'm', 's'];
+  const [originSeconds, SetOriginalSeconds] = useState(180);
+
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -45,12 +48,52 @@ const Timer = () => {
   };
 
   const formatTime = (sec: number) => {
-    const minutes = Math.floor(sec / 60).toString();
+    const hours = Math.floor(sec / 3600).toString();
+    const minutes = Math.floor((sec % 3600) / 60).toString();
     const seconds = (sec % 60).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
+    return `${parseInt(hours) ? hours + ':' : ''}${
+      parseInt(minutes) ? minutes + ':' : ''
+    }${seconds}`;
+  };
+
+  const calculateSecondsFromPlaceholder = () => {
+    const hours = parseInt(placeholder[0]) || 0;
+    const minutes = parseInt(placeholder[1]) || 0;
+    const seconds = parseInt(placeholder[2]) || 0;
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  const handleNumPadPlay = () => {
+    const totalSeconds = calculateSecondsFromPlaceholder();
+    if (totalSeconds > 0) {
+      setSeconds(totalSeconds);
+      SetOriginalSeconds(totalSeconds);
+      setIsRunning(true);
+      setNumPadShow(false);
+      setPlaceholder(['00', '00', '00']);
+    }
   };
 
   const numPadKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0'];
+  const handleNumPadPress = (key: string) => {
+    const updatedPlaceholder = [...placeholder];
+    if (updatedPlaceholder[2][0] === '0') {
+      updatedPlaceholder[2] = updatedPlaceholder[2][1] + key;
+    } else if (updatedPlaceholder[1][0] === '0') {
+      updatedPlaceholder[1] = updatedPlaceholder[1][1] + key;
+    } else if (updatedPlaceholder[0][0] === '0') {
+      updatedPlaceholder[0] = updatedPlaceholder[0][1] + key;
+    }
+    setPlaceholder(updatedPlaceholder);
+  };
+
+  const timerHeaderCalc = useMemo(() => {
+    return seconds >= 3600
+      ? `${Math.floor(seconds / 3600)}h Timer`
+      : seconds >= 60
+      ? `${Math.floor(seconds / 60)}m Timer`
+      : `${seconds}s Timer`;
+  }, [placeholder]);
 
   return (
     <View style={styles.timerContainer}>
@@ -60,11 +103,13 @@ const Timer = () => {
           <Menu />
         </TouchableOpacity>
       </View>
-      {numPadShow ? (
-        <View>
+      {!numPadShow ? (
+        <>
           <View style={styles.timerHolderContainer}>
             <View style={styles.timerInnerContainerHeader}>
-              <Text style={styles.timerInnerContainerHeaderText}>3m Timer</Text>
+              <Text style={styles.timerInnerContainerHeaderText}>
+                {timerHeaderCalc}
+              </Text>
               <TouchableOpacity
                 style={styles.timerInnerContainerHeaderCloseButton}>
                 <Close width={15} height={15} />
@@ -73,18 +118,13 @@ const Timer = () => {
             <View style={styles.timerFunctionHolder}>
               <View style={styles.timerWatchButton}>
                 <Text
-                  style={{
-                    flex: 0.5,
-                    top: 90,
-                    color: 'white',
-                    fontSize: 70,
-                  }}>
+                  style={{flex: 0.5, top: 90, color: 'white', fontSize: 70}}>
                   {formatTime(seconds)}
                 </Text>
                 <View style={{flex: 0.5}}>
                   <TouchableOpacity
                     style={styles.resetButton}
-                    onPress={() => setSeconds(180)}>
+                    onPress={() => setSeconds(originSeconds)}>
                     <RestartButtoonPink width={40} height={40} />
                   </TouchableOpacity>
                 </View>
@@ -115,21 +155,28 @@ const Timer = () => {
           </View>
           <View style={styles.controlButtonContainer}>
             <TouchableOpacity
+              onPress={() => setNumPadShow(true)}
               activeOpacity={1}
               style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
               <AddIcon width={25} height={25} />
             </TouchableOpacity>
           </View>
-        </View>
+        </>
       ) : (
         <View>
           <View style={styles.textInputConatiner}>
             {[0, 1, 2].map(idx => (
-              <View style={styles.textInPlaceholderInput}>
+              <View style={styles.textInPlaceholderInput} key={idx}>
                 <TextInput
-                  placeholderTextColor="#c1c1c1"
                   placeholder={placeholder[idx]}
-                  style={{fontSize: 50, alignSelf: 'flex-end'}}
+                  style={{fontSize: 50, color: 'white'}}
+                  onChangeText={text => {
+                    const updatedPlaceholder = [...placeholder];
+                    updatedPlaceholder[idx] = text;
+                    setPlaceholder(updatedPlaceholder);
+                  }}
+                  value={placeholder[idx]}
+                  keyboardType="numeric"
                 />
                 <Text style={styles.suffixInputPlaceholder}>
                   {unitTime[idx]}
@@ -138,17 +185,39 @@ const Timer = () => {
             ))}
           </View>
           <View style={styles.numPadContainer}>
-            {numPadKeys.map((key, index) => (
-              <TouchableOpacity style={styles.numKeyPadButton}>
-                <Text style={styles.textNumpPageKeys} key={key}>
-                  {key}
-                </Text>
+            {numPadKeys.map(key => (
+              <TouchableOpacity
+                key={key}
+                style={styles.numKeyPadButton}
+                onPress={() => handleNumPadPress(key)}>
+                <Text style={styles.textNumpPageKeys}>{key}</Text>
               </TouchableOpacity>
             ))}
             <View
               style={[styles.numKeyPadButton, {backgroundColor: '#60626e'}]}>
               <BackspaceIcon height={24} width={24} />
             </View>
+          </View>
+          <View style={styles.addTimerControlButtons}>
+            <TouchableOpacity
+              onPress={() => {
+                setNumPadShow(false);
+                setPlaceholder(['00', '00', '00']);
+              }}
+              style={[styles.deleteButton]}>
+              <DeleteIcon height={24} width={24} />
+            </TouchableOpacity>
+            {parseInt(placeholder.join('')) ? (
+              <TouchableOpacity
+                onPress={handleNumPadPlay}
+                activeOpacity={1}
+                style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
+                <PlayButton width={25} height={25} />
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
+            <View style={{width: 80}}></View>
           </View>
         </View>
       )}
@@ -300,5 +369,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     bottom: 20,
     alignSelf: 'flex-end',
+  },
+  deleteButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 50,
+    height: 50,
+    borderRadius: 35,
+    backgroundColor: '#3b5062',
+    margin: 20,
+  },
+  addTimerControlButtons: {
+    marginTop: 20,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
 });
