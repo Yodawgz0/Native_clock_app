@@ -10,6 +10,7 @@ import Stopwatch from './pages/Stopwatch';
 import Clock from './pages/Clock';
 import SearchCities from './pages/SearchCities';
 import Timer from './pages/Timer';
+import Alarm from './pages/Alarm';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +56,11 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="Timer"
               component={Timer}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Alarm"
+              component={Alarm}
               options={{headerShown: false}}
             />
           </Stack.Navigator>
