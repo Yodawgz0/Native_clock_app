@@ -1,9 +1,54 @@
-import React from 'react';
-import {StyleSheet, Text, View, Switch, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Switch,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+} from 'react-native';
 import AddIcon from '../assets/add.svg';
 import Menu from '../assets/menuDots.svg';
+import UpArrow from '../assets/UpArrowKey.svg';
+import DownArrow from '../assets/DownArrowKey.svg';
 
 const Alarm = () => {
+  const [expandedAlarms, setExpandedAlarms] = useState<number[]>([]);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedTime, setSelectedTime] = useState('8:30 AM'); // Default time
+  const [alarms, setAlarms] = useState([
+    {time: '8:30', period: 'AM', days: 'Mon, Tue, Wed, Thu, Fri', active: true},
+    {time: '9:00', period: 'AM', days: 'Sun, Sat', active: false},
+  ]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [newAlarm, setNewAlarm] = useState({
+    time: '',
+    period: 'AM',
+    days: '',
+    active: true,
+  });
+
+  const toggleExpand = (index: number) => {
+    setExpandedAlarms(prev =>
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index],
+    );
+  };
+
+  const handleAddAlarm = () => {
+    setAlarms([...alarms, newAlarm]);
+    setModalVisible(false);
+    setNewAlarm({time: '', period: 'AM', days: '', active: true});
+  };
+
+  const toggleAlarmActive = (index: number) => {
+    setAlarms(prev =>
+      prev.map((alarm, i) =>
+        i === index ? {...alarm, active: !alarm.active} : alarm,
+      ),
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={{flex: 0.9}}>
@@ -14,31 +59,98 @@ const Alarm = () => {
           </TouchableOpacity>
         </View>
 
-        {/* First Alarm Entry */}
-        <View style={styles.alarmCard}>
-          <View style={styles.alarmInfo}>
-            <Text style={styles.time}>8:30</Text>
-            <Text style={styles.period}>AM</Text>
-          </View>
-          <Text style={styles.days}>Mon, Tue, Wed, Thu, Fri</Text>
-          <Switch style={styles.switch} />
-        </View>
+        {alarms.map((alarm, index) => (
+          <View key={index} style={styles.alarmCard}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View style={styles.alarmInfo}>
+                <Text style={styles.time}>
+                  {alarm.time}
+                  <Text style={styles.period}>{alarm.period}</Text>
+                </Text>
+                <Text style={styles.days}>{alarm.days}</Text>
+              </View>
+              <View style={styles.actions}>
+                <Switch
+                  style={styles.switch}
+                  value={alarm.active}
+                  onValueChange={() => toggleAlarmActive(index)}
+                />
+                <TouchableOpacity
+                  style={styles.expandButton}
+                  onPress={() => toggleExpand(index)}>
+                  {expandedAlarms.includes(index) ? (
+                    <UpArrow width={15} height={15} />
+                  ) : (
+                    <DownArrow width={15} height={15} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
 
-        {/* Second Alarm Entry */}
-        <View style={styles.alarmCard}>
-          <View style={styles.alarmInfo}>
-            <Text style={styles.time}>9:00</Text>
-            <Text style={styles.period}>AM</Text>
+            {expandedAlarms.includes(index) && (
+              <View style={styles.expandedContent}>
+                {/* Additional expanded options here */}
+              </View>
+            )}
           </View>
-          <Text style={styles.days}>Sun, Sat</Text>
-          <Switch style={styles.switch} />
-        </View>
+        ))}
       </View>
+
+      {/* Modal for adding a new alarm */}
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Set Alarm</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Time (e.g., 8:30)"
+              value={newAlarm.time}
+              onChangeText={text => setNewAlarm({...newAlarm, time: text})}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Days (e.g., Mon, Tue)"
+              value={newAlarm.days}
+              onChangeText={text => setNewAlarm({...newAlarm, days: text})}
+            />
+            <View style={styles.switchRow}>
+              <Text style={styles.switchText}>AM</Text>
+              <Switch
+                value={newAlarm.period === 'PM'}
+                onValueChange={value =>
+                  setNewAlarm({...newAlarm, period: value ? 'PM' : 'AM'})
+                }
+              />
+              <Text style={styles.switchText}>PM</Text>
+            </View>
+            <View style={styles.switchRow}>
+              <Text style={styles.switchText}>Active</Text>
+              <Switch
+                value={newAlarm.active}
+                onValueChange={value =>
+                  setNewAlarm({...newAlarm, active: value})
+                }
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleAddAlarm}>
+              <Text style={styles.modalButtonText}>Add Alarm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.controlButtonContainer}>
         <TouchableOpacity
           activeOpacity={1}
-          style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}>
+          style={[styles.mainButton, {backgroundColor: '#93CCFF'}]}
+          onPress={() => setModalVisible(true)}>
           <AddIcon width={25} height={25} />
         </TouchableOpacity>
       </View>
@@ -57,7 +169,6 @@ const styles = StyleSheet.create({
   header: {
     fontFamily: 'Rubik-Regular',
     marginTop: 40,
-    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -75,8 +186,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   alarmInfo: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'baseline',
+    width: 200,
   },
   time: {
     fontSize: 40,
@@ -93,26 +205,28 @@ const styles = StyleSheet.create({
     color: '#a5a5a5',
     marginTop: 4,
   },
-  switch: {
-    position: 'absolute',
-    top: 20,
-    right: 16,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    backgroundColor: '#5e7ce2',
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
+  actions: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 10,
   },
-  addButtonText: {
-    fontSize: 36,
-    color: '#ffffff',
-    fontWeight: 'bold',
+  expandButton: {
+    backgroundColor: '#2b333a',
+    alignItems: 'center',
+    padding: 5,
+    borderRadius: 20,
+    height: 27,
+    width: 27,
+  },
+  switch: {
+    marginLeft: 10,
+  },
+  expandedContent: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 8,
   },
   controlButtonContainer: {
     flex: 0.1,
@@ -128,5 +242,50 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 2, height: 3},
     shadowOpacity: 0.1,
     shadowRadius: 3,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    margin: 20,
+    padding: 20,
+    backgroundColor: '#2b2b2b',
+    borderRadius: 10,
+  },
+  modalTitle: {
+    color: '#e5e5e5',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: '#3a3a3a',
+    color: '#e5e5e5',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  switchText: {
+    color: '#e5e5e5',
+  },
+  modalButton: {
+    backgroundColor: '#93CCFF',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  modalButtonText: {
+    color: '#121212',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
