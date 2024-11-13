@@ -90,7 +90,35 @@ const Alarm = () => {
 
             {expandedAlarms.includes(index) && (
               <View style={styles.expandedContent}>
-                {/* Additional expanded options here */}
+                <View style={styles.daySelectorContainer}>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, dayIndex) => (
+                    <TouchableOpacity key={dayIndex} style={styles.daySelector}>
+                      <Text style={styles.dayText}>{day}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionText}>Pause alarm</Text>
+                  <TouchableOpacity style={styles.addOptionButton} />
+                </View>
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionText}>Default (Cesium)</Text>
+                  <TouchableOpacity style={styles.addOptionButton} />
+                </View>
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionText}>Vibrate</Text>
+                  <TouchableOpacity style={styles.checkedOptionButton} />
+                </View>
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionText}>
+                    Google Assistant Routine
+                  </Text>
+                  <TouchableOpacity style={styles.addOptionButton} />
+                </View>
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionText}>Delete</Text>
+                  <TouchableOpacity style={styles.deleteOptionButton} />
+                </View>
               </View>
             )}
           </View>
@@ -227,6 +255,49 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#2a2a2a',
     borderRadius: 8,
+  },
+  daySelectorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  daySelector: {
+    backgroundColor: '#2a2a2a',
+    borderRadius: 20,
+    padding: 8,
+  },
+  dayText: {
+    color: '#d5d5d5',
+    fontSize: 14,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+  optionText: {
+    color: '#a5a5a5',
+    fontSize: 14,
+  },
+  addOptionButton: {
+    height: 15,
+    width: 15,
+    backgroundColor: '#2b333a',
+    borderRadius: 7.5,
+  },
+  checkedOptionButton: {
+    height: 15,
+    width: 15,
+    backgroundColor: '#4285F4',
+    borderRadius: 7.5,
+  },
+  deleteOptionButton: {
+    height: 15,
+    width: 15,
+    backgroundColor: '#FF5252',
+    borderRadius: 7.5,
   },
   controlButtonContainer: {
     flex: 0.1,
