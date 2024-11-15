@@ -22,6 +22,7 @@ const Clock = () => {
     new Date().toDateString(),
   );
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   useEffect(() => {
     const intervalTime = setInterval(() => {
@@ -42,9 +43,8 @@ const Clock = () => {
       timeout: 60000,
     })
       .then(async location => {
-        console.log(location);
         const res = await axios(
-          `https://geocode.maps.co/reverse?lat=${location.latitude}&lon=${location.longitude}&api_key=6736a7be40d5d514712959fqb7b563f`,
+          `https://geocode.maps.co/reverse?lat=${location.latitude}&lon=${location.longitude}&api_key=${process.env.API_GEO}`,
         );
         setCityState([
           res.data.address.city || '',
@@ -61,14 +61,23 @@ const Clock = () => {
   const getSelectedCity = async () => {
     try {
       const city = await AsyncStorage.getItem('selectedCity');
-      console.log(await AsyncStorage.getAllKeys());
       const conti = await AsyncStorage.getItem('selectedConti');
-      console.log('http://worldtimeapi.org/api/timezone/' + city + '/' + conti);
       const response = await fetch(
-        'http://worldtimeapi.org/api/timezone/' + city + '/' + conti,
+        'http://worldtimeapi.org/api/timezone/' + conti + '/' + city,
       );
       const data = await response.json();
-      console.log(data.datetime);
+      console.log(data);
+      const date = new Date(data.datetime);
+      const options = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata',
+      };
+      const formattedTime = new Intl.DateTimeFormat('en-US', options).format(
+        date,
+      );
+      setSelectedTime(formattedTime);
       setSelectedCity(city);
     } catch (error) {
       console.error('Error retrieving city from storage:', error);
@@ -91,18 +100,17 @@ const Clock = () => {
         <View style={styles.timeHeaderContainer}>
           <Text style={styles.dateHeader}>{currentDate}</Text>
         </View>
-        {selectedCity && (
-          <View style={styles.selectedCityContainer}>
-            <Text style={styles.selectedCityText}>
-              Selected City: {selectedCity}
-            </Text>
-          </View>
-        )}
         <View style={styles.cardCurrentLocation}>
           <Text style={styles.cardCurrentLocationText}>
             Current Location : {cityState[0]} {cityState[1]}
           </Text>
         </View>
+        {selectedCity && (
+          <View style={styles.selectedCityContainer}>
+            <Text style={styles.selectedCityText}>{selectedCity}</Text>
+            <Text style={styles.selectedCityText}>{selectedTime}</Text>
+          </View>
+        )}
       </View>
       <View style={styles.controlButtonContainer}>
         <TouchableOpacity
@@ -163,8 +171,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   selectedCityContainer: {
+    height: 80,
+    marginHorizontal: 10,
+    padding: 20,
+    backgroundColor: '#2d3034',
+    borderRadius: 10,
     marginTop: 20,
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   selectedCityText: {
     color: 'white',

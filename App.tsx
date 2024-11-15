@@ -1,9 +1,18 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Alert,
+  Platform,
+  PermissionsAndroid,
+  Linking,
+} from 'react-native';
+import PushNotification from 'react-native-push-notification';
 import {
   NavigationContainer,
   useNavigationState,
 } from '@react-navigation/native';
-import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import NavBar from './components/NavBar/NavBar';
 import Stopwatch from './pages/Stopwatch';
@@ -27,7 +36,48 @@ const NavBarWrapper = ({children}: {children: React.ReactNode}) => {
   );
 };
 
-function App(): React.JSX.Element {
+const App = () => {
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const permission = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          {
+            title: 'Notification Permission',
+            message:
+              'This app needs access to notifications to send you reminders for clock features.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+
+        if (permission === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Notification permission granted');
+        } else if (permission === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+          Alert.alert(
+            'Notification Permission',
+            'Notifications are disabled. To enable, go to Settings and turn on notifications for this app.',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {
+                text: 'Open Settings',
+                onPress: () => Linking.openSettings(),
+              },
+            ],
+          );
+        } else {
+          Alert.alert(
+            'Notifications Disabled',
+            'Please enable notifications to receive reminders.',
+          );
+        }
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
+
   return (
     <SafeAreaView style={styles.appContainer}>
       <StatusBar
@@ -68,7 +118,7 @@ function App(): React.JSX.Element {
       </NavigationContainer>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   appContainer: {

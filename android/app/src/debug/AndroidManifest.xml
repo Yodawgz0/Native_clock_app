@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:usesCleartextTraffic="true"
@@ -23,12 +24,7 @@
         <meta-data  
             android:name="com.dieam.reactnativepushnotification.notification_color"
             android:resource="@color/white"/> <!-- or use @android:color/{name} -->
-
-        <!-- Receivers for push notifications with explicit android:exported attributes -->
-        <receiver 
-            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions"
-            android:exported="false" />
-
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
         <receiver 
             android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher"
             android:exported="false" />

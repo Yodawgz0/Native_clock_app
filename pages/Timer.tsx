@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import PushNotification from 'react-native-push-notification';
 import Menu from '../assets/menuDots.svg';
 import Close from '../assets/close.svg';
 import RestartButtoonPink from '../assets/RestartPink.svg';
@@ -16,22 +17,34 @@ import BackspaceIcon from '../assets/Backspace.svg';
 import DeleteIcon from '../assets/Delete.svg';
 
 const Timer = () => {
-  const [seconds, setSeconds] = useState(180);
+  const [seconds, setSeconds] = useState(10);
   const [isRunning, setIsRunning] = useState(false);
   const [numPadShow, setNumPadShow] = useState<boolean>(false);
   const [placeholder, setPlaceholder] = useState<string[]>(['00', '00', '00']);
   const unitTime: string[] = ['h', 'm', 's'];
-  const [originSeconds, SetOriginalSeconds] = useState(180);
+  const [originSeconds, SetOriginalSeconds] = useState(10);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
     if (isRunning && seconds > 0) {
       interval = setInterval(() => {
-        setSeconds(prev => prev - 1);
+        setSeconds(prev => {
+          const newSeconds = prev - 1;
+          if (newSeconds > 0) updateNotification(newSeconds);
+          return newSeconds;
+        });
       }, 1000);
-    } else if (seconds === 0 || !isRunning) {
-      if (interval) clearInterval(interval);
+    } else if (seconds === 0) {
+      if (isRunning) {
+        PushNotification.localNotification({
+          channelId: 'timer-channel',
+          title: 'Timer Finished!',
+          message: 'Your countdown timer has ended.',
+          soundName: '../assets/alarmsound.mp3',
+        });
+      }
+      setIsRunning(false);
     }
 
     return () => {
@@ -39,8 +52,42 @@ const Timer = () => {
     };
   }, [isRunning, seconds]);
 
+  PushNotification.configure({
+    onNotification: function (notification) {
+      console.log('Notification opened:', notification);
+      if (notification.action === 'Pause') {
+        setIsRunning(false);
+        PushNotification.cancelAllLocalNotifications();
+      } else if (notification.action === 'Reset') {
+        setIsRunning(false);
+        setSeconds(originSeconds);
+        PushNotification.configure({onNotification: () => {}});
+        PushNotification.cancelAllLocalNotifications();
+      }
+    },
+  });
+
+  const updateNotification = (time: number) => {
+    const formattedTime = formatTime(time);
+
+    PushNotification.localNotification({
+      id: '1',
+      channelId: 'timer-channel',
+      title: 'Countdown Timer',
+      message: `Time Remaining: ${formattedTime}`,
+      actions: ['Pause', 'Reset'],
+      ongoing: true,
+      onlyAlertOnce: true,
+    });
+  };
+
   const handlePlayPause = () => {
     setIsRunning(!isRunning);
+    if (!isRunning) {
+      updateNotification(seconds);
+    } else {
+      PushNotification.cancelAllLocalNotifications();
+    }
   };
 
   const handleAddMinute = () => {
@@ -54,6 +101,12 @@ const Timer = () => {
     return `${parseInt(hours) ? hours + ':' : ''}${
       parseInt(minutes) ? minutes + ':' : ''
     }${seconds}`;
+  };
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setSeconds(originSeconds);
+    PushNotification.cancelAllLocalNotifications();
   };
 
   const calculateSecondsFromPlaceholder = () => {
@@ -107,7 +160,7 @@ const Timer = () => {
       : seconds >= 60
       ? `${Math.floor(seconds / 60)}m Timer`
       : `${seconds}s Timer`;
-  }, [placeholder]);
+  }, [seconds]);
 
   return (
     <View style={styles.timerContainer}>
@@ -138,7 +191,9 @@ const Timer = () => {
                 <View style={{flex: 0.5}}>
                   <TouchableOpacity
                     style={styles.resetButton}
-                    onPress={() => setSeconds(originSeconds)}>
+                    onPress={() => {
+                      handleReset();
+                    }}>
                     <RestartButtoonPink width={40} height={40} />
                   </TouchableOpacity>
                 </View>
