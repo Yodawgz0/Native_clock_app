@@ -11,6 +11,7 @@ import BackButton from '../assets/ArrowBack.svg';
 import SearchIcon from '../assets/SearchIcon.svg';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const SearchCities = () => {
   const [searchText, setSearchText] = useState<string>('');
@@ -33,10 +34,8 @@ const SearchCities = () => {
   useEffect(() => {
     const fetchTimeZones = async () => {
       try {
-        const response = await fetch('http://worldtimeapi.org/api/timezone');
-        const data = await response.json();
-
-        const filteredTimeZones = data.filter((zone: string) =>
+        const data = await axios.get('http://worldtimeapi.org/api/timezone');
+        const filteredTimeZones = data.data.filter((zone: string) =>
           allContinents.some(continent => zone.includes(continent)),
         );
 
@@ -74,7 +73,14 @@ const SearchCities = () => {
 
   const handleCitySelect = async (city: string) => {
     try {
-      await AsyncStorage.setItem('selectedCity', city);
+      await AsyncStorage.setItem(
+        'selectedCity',
+        city.split('/')[1].replace('"', ''),
+      );
+      await AsyncStorage.setItem(
+        'selectedConti',
+        city.split('/')[0].replace('"', ''),
+      );
       navigate.navigate('Clock' as never);
     } catch (error) {
       console.error('Error saving city to storage:', error);
@@ -128,7 +134,7 @@ const SearchCities = () => {
             renderItem={({item}) => (
               <View style={[styles.cityItem]}>
                 <Text
-                  onPress={() => handleCitySelect(item.split('/')[1])}
+                  onPress={() => handleCitySelect(item)}
                   style={{color: 'white'}}>
                   {item.split('/')[1].split('_').join(' ') || item}
                 </Text>

@@ -4,9 +4,12 @@ import Menu from '../assets/menuDots.svg';
 import AddIcon from '../assets/add.svg';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GetLocation from 'react-native-get-location';
+import axios from 'axios';
 
 const Clock = () => {
   const navigate = useNavigation();
+  const [cityState, setCityState] = useState<[string, string]>(['', '']);
   const [currentTime, setCurrentTime] = useState<[string, 'AM' | 'PM']>([
     (new Date().getHours() > 12
       ? new Date().getHours() - 12
@@ -32,20 +35,46 @@ const Clock = () => {
       ]),
         setCurrentDate(new Date().toDateString());
     }, 1000);
+    getSelectedCity();
 
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 60000,
+    })
+      .then(async location => {
+        console.log(location);
+        const res = await axios(
+          `https://geocode.maps.co/reverse?lat=${location.latitude}&lon=${location.longitude}&api_key=6736a7be40d5d514712959fqb7b563f`,
+        );
+        setCityState([
+          res.data.address.city || '',
+          res.data.address.state || '',
+        ]);
+      })
+      .catch(error => {
+        const {code, message} = error;
+        console.warn(code, message);
+      });
     return () => clearInterval(intervalTime);
   }, []);
 
   const getSelectedCity = async () => {
     try {
       const city = await AsyncStorage.getItem('selectedCity');
+      console.log(await AsyncStorage.getAllKeys());
+      const conti = await AsyncStorage.getItem('selectedConti');
+      console.log('http://worldtimeapi.org/api/timezone/' + city + '/' + conti);
+      const response = await fetch(
+        'http://worldtimeapi.org/api/timezone/' + city + '/' + conti,
+      );
+      const data = await response.json();
+      console.log(data.datetime);
       setSelectedCity(city);
     } catch (error) {
       console.error('Error retrieving city from storage:', error);
     }
   };
 
-  getSelectedCity();
   return (
     <View style={styles.clockContainer}>
       <View style={{flex: 0.9}}>
@@ -69,6 +98,11 @@ const Clock = () => {
             </Text>
           </View>
         )}
+        <View style={styles.cardCurrentLocation}>
+          <Text style={styles.cardCurrentLocationText}>
+            Current Location : {cityState[0]} {cityState[1]}
+          </Text>
+        </View>
       </View>
       <View style={styles.controlButtonContainer}>
         <TouchableOpacity
@@ -150,5 +184,18 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 2, height: 3},
     shadowOpacity: 0.1,
     shadowRadius: 3,
+  },
+  cardCurrentLocation: {
+    marginTop: 20,
+    backgroundColor: '#2d3034',
+    marginHorizontal: 30,
+    height: 70,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardCurrentLocationText: {
+    textAlign: 'center',
+    color: 'white',
   },
 });
