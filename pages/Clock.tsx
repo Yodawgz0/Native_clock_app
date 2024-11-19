@@ -36,7 +36,6 @@ const Clock = () => {
       ]),
         setCurrentDate(new Date().toDateString());
     }, 1000);
-    getSelectedCity();
 
     GetLocation.getCurrentPosition({
       enableHighAccuracy: true,
@@ -74,6 +73,7 @@ const Clock = () => {
         hour12: true,
         timeZone: 'Asia/Kolkata',
       };
+      // @ts-ignore
       const formattedTime = new Intl.DateTimeFormat('en-US', options).format(
         date,
       );
@@ -83,7 +83,7 @@ const Clock = () => {
       console.error('Error retrieving city from storage:', error);
     }
   };
-
+  getSelectedCity();
   return (
     <View style={styles.clockContainer}>
       <View style={{flex: 0.9}}>
